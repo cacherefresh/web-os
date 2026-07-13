@@ -1,0 +1,15 @@
+{
+  "$comment": "Registry of the 9 app-grid slots. Keep in sync with vault/Apps/App Registry.md. Fill via the add-app Claude Skill (.claude/skills/add-app/).",
+  "domain": "cacherefresh.io",
+  "slots": [
+    { "slot": 1, "name": null, "repo": null, "url": null, "faviconUrl": null, "status": "empty" },
+    { "slot": 2, "name": null, "repo": null, "url": null, "faviconUrl": null, "status": "empty" },
+    { "slot": 3, "name": null, "repo": null, "url": null, "faviconUrl": null, "status": "empty" },
+    { "slot": 4, "name": null, "repo": null, "url": null, "faviconUrl": null, "status": "empty" },
+    { "slot": 5, "name": null, "repo": null, "url": null, "faviconUrl": null, "status": "empty" },
+    { "slot": 6, "name": null, "repo": null, "url": null, "faviconUrl": null, "status": "empty" },
+    { "slot": 7, "name": null, "repo": null, "url": null, "faviconUrl": null, "status": "empty" },
+    { "slot": 8, "name": null, "repo": null, "url": null, "faviconUrl": null, "status": "empty" },
+    { "slot": 9, "name": null, "repo": null, "url": null, "faviconUrl": null, "status": "empty" }
+  ]
+}

@@ -1,0 +1,21 @@
+name: webos_app
+description: Thin Flutter shell that opens web-os.cacherefresh.io in a WebView for app-store distribution.
+publish_to: "none"
+version: 0.0.1
+
+environment:
+  sdk: ">=3.4.0 <4.0.0"
+  flutter: ">=3.22.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  webos_webview:
+    path: ../packages/webos_webview
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
