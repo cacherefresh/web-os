@@ -19,6 +19,12 @@ web/next-env.d.ts
 # Obsidian vault (local config, not the notes)
 vault/.obsidian/
 
+# The blanket `*.lock` rule above (from Flutter's own template .gitignore)
+# would also swallow pubspec.lock. Apps should commit it for reproducible
+# builds; packages (path deps, not published) shouldn't pin one for
+# consumers. Re-include just the app's.
+!flutter_shell/app/pubspec.lock
+
 
 
 # Flutter repo-specific

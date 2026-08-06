@@ -13,9 +13,15 @@ interface ScreenPanelProps {
   height: number;
   speed: number;
   phase: number;
+  onFocus: (slot: number | null) => void;
 }
 
-export function ScreenPanel({ screen, radius, height, speed, phase }: ScreenPanelProps) {
+// Camera holds on the screen for this long before opening the app tab, then
+// releases back to the idle orbit shortly after.
+const FOCUS_FLIGHT_MS = 650;
+const FOCUS_RELEASE_MS = 900;
+
+export function ScreenPanel({ screen, radius, height, speed, phase, onFocus }: ScreenPanelProps) {
   const groupRef = useRef<THREE.Group>(null);
   const materialRef = useRef<THREE.ShaderMaterial>(null);
   const texture = useAppScreenTexture(screen);
@@ -48,9 +54,14 @@ export function ScreenPanel({ screen, radius, height, speed, phase }: ScreenPane
   });
 
   const openApp = () => {
-    if (isActive && screen.url) {
-      window.open(screen.url, "_blank", "noopener,noreferrer");
-    }
+    if (!isActive || !screen.url) return;
+    // Fly the camera toward this screen first, then open its live URL in a
+    // new tab, then release the camera back to the idle orbit.
+    onFocus(screen.slot);
+    window.setTimeout(() => {
+      window.open(screen.url as string, "_blank", "noopener,noreferrer");
+    }, FOCUS_FLIGHT_MS);
+    window.setTimeout(() => onFocus(null), FOCUS_FLIGHT_MS + FOCUS_RELEASE_MS);
   };
 
   return (

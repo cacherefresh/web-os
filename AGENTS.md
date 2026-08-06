@@ -78,25 +78,33 @@ web-os/
 │   ├── src/data/apps.ts       # typed accessor over the registry below
 │   ├── src/config/apps.json   # the 9-app registry (name, repo, subdomain, favicon, status)
 │   └── public/                 # CNAME (web-os.cacherefresh.io), .nojekyll
-├── flutter_shell/         # Flutter wrapper, split into separate modules
-│   ├── app/                # main Flutter application (thin shell)
-│   └── packages/webos_webview/  # module that loads web-os.cacherefresh.io in a WebView
+├── flutter_shell/         # Flutter wrapper, split into separate modules (Android + iOS for now)
+│   ├── app/                # main Flutter application: MaterialApp + one screen (lib/main.dart)
+│   └── packages/webos_webview/  # WebOsWebView widget (webview_flutter) pointed at web-os.cacherefresh.io
 └── .claude/skills/         # project-local Claude Skills
 ```
 
 ## Adding a new app to the grid
 
 Each of the 9 slots in `web/src/config/apps.json` needs: `name` (repo name, shown in the nav), `repo`
-(GitHub `owner/name`), `subdomain`/`url` (`https://<reponame>.cacherefresh.io`), and `faviconUrl`
-(`<url>/favicon.ico`). The new app repo itself needs a `CNAME` file containing
-`<reponame>.cacherefresh.io` for GitHub Pages (or equivalent) to route correctly. There is a
+(GitHub `owner/name`), `url` (`https://<subdomain>.cacherefresh.io`), and `faviconUrl`. **`repo` and
+`url` are independent — the subdomain does not have to match the repo name.** `cacherefresh/YuVi_Rays`
+deploys to `yuvi-rays-dvs.cacherefresh.io`, not `yuvi_rays.cacherefresh.io`. Always read the actual
+subdomain out of the app repo's own `CNAME` file (location varies — repo root for a static site,
+`web/CNAME` for a Flutter-web build) rather than deriving it from the repo name. Same for the favicon
+extension: check what the repo actually serves (`.ico` vs `.png`) instead of assuming. There is an
 `add-app` Claude Skill in `.claude/skills/add-app/` that automates registering a slot — prefer it
 over hand-editing when a human asks to "add an app."
 
 ## Conventions for agents
 
-- Keep `web/` dependency-light and framework-agnostic where reasonable (Vite + Three.js, vanilla JS
-  modules) — this matches the owner's existing stack and keeps the WebView payload small.
+- `web/` is Next.js + React Three Fiber (see decision 4 above) — don't reintroduce a vanilla
+  Vite/Three.js path. When extending the scene, check
+  `github.com/cacherefresh/robertcoffman`'s `src/components/hero/` first; it's the source these
+  components were ported from and may already have a pattern worth reusing.
+- `flutter_shell` stays Android/iOS-only until there's an actual reason to add desktop — see
+  [[vault/Decisions/2026-08-06 - flutter_shell implementation]]. Extend `webos_webview`'s
+  `NavigationDelegate` callbacks for native bridging rather than adding logic to `webos_app`.
 - Treat each app repo as a black box reached only by URL. Never assume access to its source from
   within this repo.
 - When you make a non-obvious architectural call, add a dated note under `vault/Decisions/` (same

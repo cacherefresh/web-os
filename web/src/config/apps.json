@@ -2,9 +2,9 @@
   "$comment": "Registry of the 9 app-grid slots. Keep in sync with vault/Apps/App Registry.md. Fill via the add-app Claude Skill (.claude/skills/add-app/).",
   "domain": "cacherefresh.io",
   "slots": [
-    { "slot": 1, "name": null, "repo": null, "url": null, "faviconUrl": null, "status": "empty" },
-    { "slot": 2, "name": null, "repo": null, "url": null, "faviconUrl": null, "status": "empty" },
-    { "slot": 3, "name": null, "repo": null, "url": null, "faviconUrl": null, "status": "empty" },
+    { "slot": 1, "name": "robertcoffman", "repo": "cacherefresh/robertcoffman", "url": "https://robertcoffman.cacherefresh.io", "faviconUrl": "https://robertcoffman.cacherefresh.io/favicon.ico", "status": "active" },
+    { "slot": 2, "name": "Guilds", "repo": "cacherefresh/Guilds", "url": "https://guilds.cacherefresh.io", "faviconUrl": "https://guilds.cacherefresh.io/favicon.png", "status": "active" },
+    { "slot": 3, "name": "YuVi_Rays", "repo": "cacherefresh/YuVi_Rays", "url": "https://yuvi-rays-dvs.cacherefresh.io", "faviconUrl": "https://yuvi-rays-dvs.cacherefresh.io/favicon.png", "status": "active" },
     { "slot": 4, "name": null, "repo": null, "url": null, "faviconUrl": null, "status": "empty" },
     { "slot": 5, "name": null, "repo": null, "url": null, "faviconUrl": null, "status": "empty" },
     { "slot": 6, "name": null, "repo": null, "url": null, "faviconUrl": null, "status": "empty" },

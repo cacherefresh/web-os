@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import { EffectComposer, Bloom, Vignette } from "@react-three/postprocessing";
 import type { AppScreen } from "@/data/apps";
@@ -10,6 +10,10 @@ import { ParticleField } from "./ParticleField";
 import { CameraRig } from "./CameraRig";
 
 export function Scene({ apps }: { apps: AppScreen[] }) {
+  // Which orbit slot (if any) the camera should fly toward — set by clicking
+  // a ScreenPanel, cleared once it's opened and the camera has held on it.
+  const [focusedSlot, setFocusedSlot] = useState<number | null>(null);
+
   return (
     <Canvas
       className="absolute inset-0"
@@ -26,11 +30,11 @@ export function Scene({ apps }: { apps: AppScreen[] }) {
 
       <Suspense fallback={null}>
         <Figure />
-        <OrbitingScreens apps={apps} />
+        <OrbitingScreens apps={apps} onFocus={setFocusedSlot} />
         <ParticleField apps={apps} />
       </Suspense>
 
-      <CameraRig />
+      <CameraRig apps={apps} focusedSlot={focusedSlot} />
 
       <EffectComposer multisampling={0}>
         <Bloom intensity={0.28} luminanceThreshold={0.65} luminanceSmoothing={0.1} mipmapBlur={false} radius={0.08} />
