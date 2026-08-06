@@ -1,0 +1,39 @@
+name: CI - web
+
+on:
+  pull_request:
+    branches: [sanctuary]
+    paths:
+      - "web/**"
+      - ".github/workflows/ci-web.yml"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      # For a pull_request event, actions/checkout defaults to the merge
+      # commit (base + PR head merged), i.e. what would actually land on
+      # sanctuary — not just the PR branch in isolation.
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          # No package-lock.json committed yet — see the note in
+          # deploy-web.yml. Add `cache: npm` back once one exists.
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Lint
+        run: npm run lint
+
+      # Same build deploy-web.yml runs, so a green PR means the deploy will
+      # also succeed.
+      - name: Build (static export, same target as deploy)
+        run: npm run build:pages
+        env:
+          GITHUB_PAGES: "true"

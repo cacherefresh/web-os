@@ -50,14 +50,25 @@ Kept honest: this reflects what's actually built, not the full vision. Update it
       Scoped to Android + iOS only for now — see
       [[Decisions/2026-08-06 - flutter_shell implementation]] for why, and what's still unverified
       (no actual device/simulator build — no Android SDK or full Xcode installed here).
+- [x] PR-triggered CI: `.github/workflows/ci-web.yml` (lint + the same `build:pages` build
+      `deploy-web.yml` runs, on every PR touching `web/`) and `.github/workflows/ci-flutter.yml`
+      (`flutter analyze` on both modules + a real `flutter build apk --debug` on every PR touching
+      `flutter_shell/`, since GitHub-hosted `ubuntu-latest` runners ship with the Android SDK this
+      local environment lacks). Both trigger on `pull_request` targeting `sanctuary`, which checks
+      out the merge commit by default — i.e. what would actually land, not just the PR branch alone.
+      iOS build intentionally left at `flutter analyze` only (a real `flutter build ios` needs a
+      pricier macOS runner) — see the comment in `ci-flutter.yml` if that's worth changing.
+      **Also fixed a bug found while adding this**: `deploy-web.yml`'s `setup-node` step had
+      `cache: npm` pointed at a `package-lock.json` that doesn't exist yet, which hard-fails the
+      cache step. Removed until a lockfile is committed (same `npm install`-not-`npm ci` situation as
+      before).
 
 ## Not started
 
 - [ ] `npm install` / `next dev` has **not** been run or verified — this environment has no Node.js
       installed, so `web/` has not been build- or runtime-checked yet. Verify locally before
-      trusting it.
-- [ ] `flutter build apk` / `flutter build ios` — not run, no Android SDK or full Xcode toolchain in
-      this environment. `flutter analyze` passes, but that's static analysis, not a real build.
+      trusting it. The new `ci-web.yml` will verify it on the first PR that touches `web/`, though.
+- [ ] `flutter build ios` — not run anywhere yet (CI or locally); only `flutter analyze` covers iOS.
 - [ ] Live mini-preview per screen (iframe or periodic screenshot) — currently a static
       favicon+name card, not a live view of the app
 - [ ] Desktop (macOS/Windows/Linux) support for `flutter_shell` — deferred, needs a different WebView
