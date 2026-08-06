@@ -78,27 +78,31 @@ function drawApp(ctx: CanvasRenderingContext2D, screen: AppScreen, icon: HTMLIma
 }
 
 export function useAppScreenTexture(screen: AppScreen) {
-  const [icon, setIcon] = useState<HTMLImageElement | null>(null);
+  const [loadedIcon, setLoadedIcon] = useState<{ url: string; img: HTMLImageElement } | null>(null);
 
   useEffect(() => {
     if (screen.status !== "active" || !screen.faviconUrl) {
-      setIcon(null);
       return;
     }
     let cancelled = false;
+    const url = screen.faviconUrl;
     const img = new Image();
     img.crossOrigin = "anonymous";
     img.onload = () => {
-      if (!cancelled) setIcon(img);
+      if (!cancelled) setLoadedIcon({ url, img });
     };
     img.onerror = () => {
-      if (!cancelled) setIcon(null);
+      if (!cancelled) setLoadedIcon(null);
     };
-    img.src = screen.faviconUrl;
+    img.src = url;
     return () => {
       cancelled = true;
     };
   }, [screen.status, screen.faviconUrl]);
+
+  // Ignore a stale icon from a previous screen/faviconUrl instead of
+  // resetting it via setState in the effect above (react-hooks/set-state-in-effect).
+  const icon = loadedIcon && loadedIcon.url === screen.faviconUrl ? loadedIcon.img : null;
 
   return useMemo(() => {
     const canvas = document.createElement("canvas");
