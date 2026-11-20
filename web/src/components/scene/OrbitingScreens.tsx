@@ -7,10 +7,11 @@ import { ScreenPanel } from "./ScreenPanel";
 
 interface OrbitingScreensProps {
   apps: AppScreen[];
-  onFocus: (slot: number | null) => void;
+  dimmed: boolean;
+  onSelect: (slot: number) => void;
 }
 
-export function OrbitingScreens({ apps, onFocus }: OrbitingScreensProps) {
+export function OrbitingScreens({ apps, dimmed, onSelect }: OrbitingScreensProps) {
   const layout = useMemo(() => computeOrbitLayout(apps), [apps]);
 
   return (
@@ -23,7 +24,8 @@ export function OrbitingScreens({ apps, onFocus }: OrbitingScreensProps) {
           height={height}
           speed={speed}
           phase={phase}
-          onFocus={onFocus}
+          dimmed={dimmed}
+          onSelect={onSelect}
         />
       ))}
     </group>

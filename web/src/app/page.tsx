@@ -1,5 +1,4 @@
-import { SceneClient } from "@/components/scene/SceneClient";
-import { Chrome } from "@/components/ui/Chrome";
+import { WebOsShell } from "@/components/shell/WebOsShell";
 import { getAppScreens } from "@/data/apps";
 
 export default function Home() {
@@ -7,8 +6,7 @@ export default function Home() {
 
   return (
     <main className="relative mx-auto h-dvh w-full max-w-md overflow-hidden bg-[#040611] sm:border-x sm:border-white/10">
-      <SceneClient apps={apps} />
-      <Chrome apps={apps} />
+      <WebOsShell apps={apps} />
     </main>
   );
 }

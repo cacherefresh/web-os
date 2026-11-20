@@ -2,13 +2,13 @@
   "$comment": "Registry of the 9 app-grid slots. Keep in sync with vault/Apps/App Registry.md. Fill via the add-app Claude Skill (.claude/skills/add-app/).",
   "domain": "cacherefresh.io",
   "slots": [
-    { "slot": 1, "name": "robertcoffman", "repo": "cacherefresh/robertcoffman", "url": "https://robertcoffman.cacherefresh.io", "faviconUrl": "https://robertcoffman.cacherefresh.io/favicon.ico", "status": "active" },
-    { "slot": 2, "name": "Guilds", "repo": "cacherefresh/Guilds", "url": "https://guilds.cacherefresh.io", "faviconUrl": "https://guilds.cacherefresh.io/favicon.png", "status": "active" },
-    { "slot": 3, "name": "YuVi_Rays", "repo": "cacherefresh/YuVi_Rays", "url": "https://yuvi-rays-dvs.cacherefresh.io", "faviconUrl": "https://yuvi-rays-dvs.cacherefresh.io/favicon.png", "status": "active" },
-    { "slot": 4, "name": null, "repo": null, "url": null, "faviconUrl": null, "status": "empty" },
-    { "slot": 5, "name": null, "repo": null, "url": null, "faviconUrl": null, "status": "empty" },
-    { "slot": 6, "name": null, "repo": null, "url": null, "faviconUrl": null, "status": "empty" },
-    { "slot": 7, "name": null, "repo": null, "url": null, "faviconUrl": null, "status": "empty" },
+    { "slot": 1, "name": "InsulinPlant", "tag": "TheSickIsMyTribe", "repo": "cacherefresh/InsulinPlant", "url": "https://insulinplant.cacherefresh.io", "faviconUrl": "https://insulinplant.cacherefresh.io/icons/favicon/apple-touch-icon.png", "status": "active" },
+    { "slot": 2, "name": "AI-Paladin", "tag": "vm-2: securityFOSS", "kind": "link", "caption": "GitHub · cacherefresh/AI-Paladin", "repo": "cacherefresh/AI-Paladin", "url": "https://github.com/cacherefresh/AI-Paladin", "faviconUrl": "/ai-paladin.svg", "status": "active" },
+    { "slot": 3, "name": "America_TwoDotZero", "tag": "Peace And Freedom", "repo": "cacherefresh/America_TwoDotZero", "url": "https://america2dot0.cacherefresh.io", "faviconUrl": "https://america2dot0.cacherefresh.io/favicon.png", "status": "active" },
+    { "slot": 4, "name": "YuVi_Rays", "tag": "vm-4: Music", "repo": "cacherefresh/YuVi_Rays", "url": "https://yuvi-rays-dvs.cacherefresh.io", "faviconUrl": "https://yuvi-rays-dvs.cacherefresh.io/icons/favicon/apple-touch-icon.png", "status": "active" },
+    { "slot": 5, "name": "Guilds", "tag":"vm-5: VideoGames","repo": "cacherefresh/Guilds", "url": "https://guilds.cacherefresh.io", "faviconUrl": "https://guilds.cacherefresh.io/favicon.png", "status": "active" },
+    { "slot": 6, "name": "About Me", "tag": "vm-6 ~$ whoami", "repo": "cacherefresh/robertcoffman", "url": "https://robertcoffman.cacherefresh.io", "faviconUrl": "https://robertcoffman.cacherefresh.io/favicon.ico", "status": "active" },
+    { "slot": 7, "name": "Donate", "tag": "SLOT-LUCKY#777", "kind": "link", "caption": "Cash App · $cacherefresh", "repo": null, "url": "https://cash.app/$cacherefresh", "faviconUrl": "/cashapp-donate.svg", "status": "active" },
     { "slot": 8, "name": null, "repo": null, "url": null, "faviconUrl": null, "status": "empty" },
     { "slot": 9, "name": null, "repo": null, "url": null, "faviconUrl": null, "status": "empty" }
   ]

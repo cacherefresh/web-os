@@ -66,10 +66,40 @@ function drawApp(ctx: CanvasRenderingContext2D, screen: AppScreen, icon: HTMLIma
 
   ctx.font = "400 18px 'Segoe UI', sans-serif";
   ctx.fillStyle = "rgba(255,255,255,0.6)";
-  ctx.fillText(screen.repo ?? "", iconX, iconY + iconSize + 30);
+  ctx.fillText(screen.caption ?? "", iconX, iconY + iconSize + 30);
 
   ctx.fillStyle = "rgba(255,255,255,0.85)";
   ctx.fillText("tap to open →", iconX, HEIGHT - 40);
+
+  ctx.strokeStyle = screen.accent;
+  ctx.globalAlpha = 0.6;
+  ctx.lineWidth = 2;
+  ctx.strokeRect(4, 4, WIDTH - 8, HEIGHT - 8);
+}
+
+/** Link slots (Cash App donate): the icon carries the message, so draw it big. */
+function drawLink(ctx: CanvasRenderingContext2D, screen: AppScreen, icon: HTMLImageElement | null) {
+  ctx.clearRect(0, 0, WIDTH, HEIGHT);
+
+  const iconSize = 200;
+  const iconX = 32;
+  const iconY = (HEIGHT - iconSize) / 2;
+  if (icon) ctx.drawImage(icon, iconX, iconY, iconSize, iconSize);
+
+  const textX = iconX + iconSize + 28;
+  ctx.globalAlpha = 1;
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "700 40px 'Segoe UI', sans-serif";
+  ctx.fillText(screen.name ?? "", textX, HEIGHT / 2 - 18);
+
+  ctx.font = "400 18px 'Segoe UI', sans-serif";
+  ctx.fillStyle = "rgba(255,255,255,0.65)";
+  const [service, handle] = (screen.caption ?? "").split(" · ");
+  ctx.fillText(service ?? "", textX, HEIGHT / 2 + 16);
+  if (handle) ctx.fillText(handle, textX, HEIGHT / 2 + 40);
+
+  ctx.fillStyle = "rgba(255,255,255,0.85)";
+  ctx.fillText("tap to open ↗", textX, HEIGHT / 2 + 84);
 
   ctx.strokeStyle = screen.accent;
   ctx.globalAlpha = 0.6;
@@ -110,7 +140,9 @@ export function useAppScreenTexture(screen: AppScreen) {
     canvas.height = HEIGHT;
     const ctx = canvas.getContext("2d");
     if (ctx) {
-      if (screen.status === "active") {
+      if (screen.status === "active" && screen.kind === "link") {
+        drawLink(ctx, screen, icon);
+      } else if (screen.status === "active") {
         drawApp(ctx, screen, icon);
       } else {
         drawEmptySlot(ctx, screen);

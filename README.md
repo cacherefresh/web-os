@@ -21,4 +21,8 @@ vault/          Obsidian vault — project memory, kept in sync with AGENTS.md
 
 ## Status
 
-Scaffolding stage — see [vault/Roadmap.md](vault/Roadmap.md) for what's built vs. still open.
+The UI is built and verified locally: a translucent left rail slides out into a scrolling list of
+the 9 slots, each showing a live preview of its app, and picking one loads that site in place inside
+a holographic frame — all over a Three.js particle scene. Not yet deployed; GitHub Pages still needs
+enabling and a GoDaddy CNAME record. See [vault/Roadmap.md](vault/Roadmap.md) for what's built vs.
+still open.
