@@ -12,11 +12,6 @@ export const siteConfig = {
     "each living in its own repo and deployed to its own subdomain. This screen " +
     "never contains their code — it only points at them.",
 
-  nav: [
-    { label: "Home", href: "#" },
-    { label: "About", href: "#about" },
-  ],
-
   metaTitle: "web-os",
   metaDescription: "A phone-sized, futuristic web operating system — nine app screens orbiting a center figure.",
 } as const;

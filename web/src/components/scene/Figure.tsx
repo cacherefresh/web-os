@@ -1,11 +1,18 @@
 "use client";
 
-import { useMemo, useRef } from "react";
+import { useMemo, useRef, type RefObject } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { getWingTexture } from "./wingTexture";
 
-function Wing({ side }: { side: 1 | -1 }) {
+/**
+ * Shared 0→1 fade driver. The figure's glow is the brightest thing on screen,
+ * so it has to come down hard when an app frame opens or it reads straight
+ * through the frame's translucent bezel.
+ */
+const DIMMED_FACTOR = 0.15;
+
+function Wing({ side, dim }: { side: 1 | -1; dim: RefObject<number> }) {
   const texture = useMemo(() => getWingTexture(), []);
   const groupRef = useRef<THREE.Group>(null);
   const materialRef = useRef<THREE.MeshBasicMaterial>(null);
@@ -17,7 +24,7 @@ function Wing({ side }: { side: 1 | -1 }) {
       groupRef.current.rotation.x = 0.1 + Math.sin(t * 0.9 + side) * 0.03;
     }
     if (materialRef.current) {
-      materialRef.current.opacity = 0.4 + Math.sin(t * 1.4 + side) * 0.1;
+      materialRef.current.opacity = (0.4 + Math.sin(t * 1.4 + side) * 0.1) * dim.current;
     }
   });
 
@@ -39,13 +46,13 @@ function Wing({ side }: { side: 1 | -1 }) {
   );
 }
 
-function BodySilhouette() {
+function BodySilhouette({ dim }: { dim: RefObject<number> }) {
   const rimRef = useRef<THREE.Mesh>(null);
 
   useFrame((state) => {
     if (rimRef.current) {
       const material = rimRef.current.material as THREE.MeshBasicMaterial;
-      material.opacity = 0.22 + Math.sin(state.clock.elapsedTime * 1.2) * 0.08;
+      material.opacity = (0.22 + Math.sin(state.clock.elapsedTime * 1.2) * 0.08) * dim.current;
     }
   });
 
@@ -88,23 +95,35 @@ function BodySilhouette() {
   );
 }
 
-export function Figure() {
+export function Figure({ dimmed }: { dimmed: boolean }) {
   const floatRef = useRef<THREE.Group>(null);
+  const lightRef = useRef<THREE.PointLight>(null);
+  // Eased here once and read by every child, so the whole figure fades as one
+  // body rather than each material easing on its own schedule.
+  const dim = useRef(1);
 
   useFrame((state) => {
     const t = state.clock.elapsedTime;
+    dim.current = THREE.MathUtils.lerp(dim.current, dimmed ? DIMMED_FACTOR : 1, 0.06);
+
     if (floatRef.current) {
       floatRef.current.position.y = Math.sin(t * 0.5) * 0.12;
       floatRef.current.rotation.y = Math.sin(t * 0.15) * 0.25;
     }
+    if (lightRef.current) {
+      lightRef.current.intensity = 0.5 * dim.current;
+    }
   });
 
   return (
-    <group ref={floatRef}>
-      <Wing side={1} />
-      <Wing side={-1} />
-      <BodySilhouette />
-      <pointLight position={[0, 0.8, 0.6]} intensity={0.5} color="#f5c451" distance={3} />
+    // Scaled down as a whole: at full size the wingspan overflows the portrait
+    // viewport's narrow horizontal FOV and the wings get sliced off at both
+    // edges. See the radius note in `orbitLayout.ts` — same constraint.
+    <group ref={floatRef} scale={0.72}>
+      <Wing side={1} dim={dim} />
+      <Wing side={-1} dim={dim} />
+      <BodySilhouette dim={dim} />
+      <pointLight ref={lightRef} position={[0, 0.8, 0.6]} intensity={0.5} color="#f5c451" distance={3} />
     </group>
   );
 }

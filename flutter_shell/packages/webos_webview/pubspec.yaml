@@ -11,6 +11,9 @@ dependencies:
   flutter:
     sdk: flutter
   webview_flutter: ^4.10.0
+  # Outbound links from an embedded app are handed to the system browser
+  # rather than allowed to replace the shell — see WebOsWebView.
+  url_launcher: ^6.3.0
 
 dev_dependencies:
   flutter_test:

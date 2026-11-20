@@ -13,21 +13,31 @@ interface ScreenPanelProps {
   height: number;
   speed: number;
   phase: number;
-  onFocus: (slot: number | null) => void;
+  /** An app frame is open — recede into the background and stop taking clicks. */
+  dimmed: boolean;
+  onSelect: (slot: number) => void;
 }
 
-// Camera holds on the screen for this long before opening the app tab, then
-// releases back to the idle orbit shortly after.
-const FOCUS_FLIGHT_MS = 650;
-const FOCUS_RELEASE_MS = 900;
+/** How far down the panels fade once an app frame is covering the scene. */
+const DIMMED_OPACITY = 0.12;
 
-export function ScreenPanel({ screen, radius, height, speed, phase, onFocus }: ScreenPanelProps) {
+export function ScreenPanel({
+  screen,
+  radius,
+  height,
+  speed,
+  phase,
+  dimmed,
+  onSelect,
+}: ScreenPanelProps) {
   const groupRef = useRef<THREE.Group>(null);
   const materialRef = useRef<THREE.ShaderMaterial>(null);
+  const scratchScale = useRef(new THREE.Vector3());
   const texture = useAppScreenTexture(screen);
   const color = useMemo(() => new THREE.Color(screen.accent), [screen.accent]);
   const [hovered, setHovered] = useState(false);
   const isActive = screen.status === "active";
+  const interactive = isActive && !dimmed;
 
   useFrame((state) => {
     const t = state.clock.elapsedTime;
@@ -39,41 +49,36 @@ export function ScreenPanel({ screen, radius, height, speed, phase, onFocus }: S
     if (groupRef.current) {
       groupRef.current.position.set(x, y, z);
       groupRef.current.rotation.y = -angle + Math.PI / 2;
-      const targetScale = hovered && isActive ? 1.12 : 1;
-      groupRef.current.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.15);
+      const targetScale = hovered && interactive ? 1.12 : 1;
+      groupRef.current.scale.lerp(scratchScale.current.setScalar(targetScale), 0.15);
     }
     if (materialRef.current) {
-      materialRef.current.uniforms.uTime.value = t;
-      const targetHover = hovered && isActive ? 1 : 0;
-      materialRef.current.uniforms.uHover.value = THREE.MathUtils.lerp(
-        materialRef.current.uniforms.uHover.value,
-        targetHover,
-        0.15
-      );
+      const uniforms = materialRef.current.uniforms;
+      uniforms.uTime.value = t;
+
+      const targetHover = hovered && interactive ? 1 : 0;
+      uniforms.uHover.value = THREE.MathUtils.lerp(uniforms.uHover.value, targetHover, 0.15);
+
+      // Reuses the shader's existing opacity uniform to fade the whole ring
+      // back behind an open app frame — no shader change needed.
+      const baseOpacity = isActive ? 1 : 0.55;
+      const targetOpacity = dimmed ? DIMMED_OPACITY : baseOpacity;
+      uniforms.uOpacity.value = THREE.MathUtils.lerp(uniforms.uOpacity.value, targetOpacity, 0.08);
     }
   });
-
-  const openApp = () => {
-    if (!isActive || !screen.url) return;
-    // Fly the camera toward this screen first, then open its live URL in a
-    // new tab, then release the camera back to the idle orbit.
-    onFocus(screen.slot);
-    window.setTimeout(() => {
-      window.open(screen.url as string, "_blank", "noopener,noreferrer");
-    }, FOCUS_FLIGHT_MS);
-    window.setTimeout(() => onFocus(null), FOCUS_FLIGHT_MS + FOCUS_RELEASE_MS);
-  };
 
   return (
     <group
       ref={groupRef}
       onClick={(e) => {
         e.stopPropagation();
-        openApp();
+        // Selecting loads the app into the frame in place. It deliberately no
+        // longer opens a tab — web-os is the shell, not a launcher.
+        if (interactive) onSelect(screen.slot);
       }}
       onPointerOver={(e) => {
         e.stopPropagation();
-        if (isActive) {
+        if (interactive) {
           setHovered(true);
           document.body.style.cursor = "pointer";
         }

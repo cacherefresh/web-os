@@ -63,6 +63,17 @@ to idiomatic modern JS (ESM, Vite) for anything in `web/`.
    ports and adapts those components directly rather than rebuilding the same thing in vanilla
    Three.js. Static-export to GitHub Pages (`next build` with `GITHUB_PAGES=true`) is the deploy
    target, matching robertcoffman's proven `next.config.ts` pattern.
+5. **Navigation is DOM chrome, not the 3D scene.** A ~12px translucent sliver at the left edge
+   expands into a drawer listing all 9 slots, each with a live preview of the app; selecting one
+   loads it in place in a full-viewport iframe. The Three.js scene is the Home/idle view and the
+   atmosphere behind that frame — clicking an orbiting panel is a shortcut to a selection, not a
+   separate path, and nothing opens in a new tab. See
+   [[vault/Decisions/2026-08-06b - Rail and frame UI redesign]]. Because apps are embedded, an app
+   repo that serves `X-Frame-Options` or a CSP `frame-ancestors` directive will render blank in
+   both the preview and the frame. The one exception is a **link slot** (`"kind": "link"` in
+   `apps.json`, e.g. slot 7's Cash App donate), which opens its URL in a new tab because the
+   destination refuses framing — see
+   [[vault/Decisions/2026-11-19b - Link slots for non-embeddable destinations]].
 
 ## Repo structure
 
@@ -74,7 +85,10 @@ web-os/
 │   ├── src/app/            # Next.js app router: layout, globals.css, page.tsx
 │   ├── src/components/scene/  # R3F scene: Figure (center hero), OrbitingScreens, ScreenPanel,
 │   │                           # ParticleField, CameraRig, holographic shader material
-│   ├── src/components/ui/     # TopMenu (purple bar), AppDrawer (left-hover + right-slide nav), AboutModal
+│   ├── src/components/shell/  # the OS chrome: WebOsShell (state owner), RailTab (edge sliver),
+│   │                           # AppRail (drawer), AppList (carousel), AppListItem (row),
+│   │                           # AppPreviewFrame (reusable embed), AppFrame (main viewport)
+│   ├── src/components/ui/     # AboutModal
 │   ├── src/data/apps.ts       # typed accessor over the registry below
 │   ├── src/config/apps.json   # the 9-app registry (name, repo, subdomain, favicon, status)
 │   └── public/                 # CNAME (web-os.cacherefresh.io), .nojekyll
@@ -89,10 +103,17 @@ web-os/
 Each of the 9 slots in `web/src/config/apps.json` needs: `name` (repo name, shown in the nav), `repo`
 (GitHub `owner/name`), `url` (`https://<subdomain>.cacherefresh.io`), and `faviconUrl`. **`repo` and
 `url` are independent — the subdomain does not have to match the repo name.** `cacherefresh/YuVi_Rays`
-deploys to `yuvi-rays-dvs.cacherefresh.io`, not `yuvi_rays.cacherefresh.io`. Always read the actual
-subdomain out of the app repo's own `CNAME` file (location varies — repo root for a static site,
-`web/CNAME` for a Flutter-web build) rather than deriving it from the repo name. Same for the favicon
-extension: check what the repo actually serves (`.ico` vs `.png`) instead of assuming. There is an
+deploys to `yuvi-rays-dvs.cacherefresh.io`, not `yuvi_rays.cacherefresh.io`. Never derive the
+subdomain from the repo name — verify it against the live site (it must return 200) plus the repo's
+own evidence (homepage field, deploy workflow, or owner's word). **Don't treat the repo's `CNAME`
+file as the source of truth:** every app repo here deploys through `actions/deploy-pages`, which
+ignores that file — the custom domain lives in the repo's Settings → Pages, and the file can be
+missing or stale while the site works fine. Routing itself is the GoDaddy DNS CNAME record →
+`cacherefresh.github.io`. See [[vault/Decisions/2026-11-19 - CNAME file is not the source of truth]].
+For the favicon, use
+what the live page's `<link rel="icon">`/`apple-touch-icon` tags point at — a Flutter web build
+serves the default Flutter-logo `favicon.png` at its root even when it declares a custom icon
+elsewhere. There is an
 `add-app` Claude Skill in `.claude/skills/add-app/` that automates registering a slot — prefer it
 over hand-editing when a human asks to "add an app."
 
@@ -101,7 +122,14 @@ over hand-editing when a human asks to "add an app."
 - `web/` is Next.js + React Three Fiber (see decision 4 above) — don't reintroduce a vanilla
   Vite/Three.js path. When extending the scene, check
   `github.com/cacherefresh/robertcoffman`'s `src/components/hero/` first; it's the source these
-  components were ported from and may already have a pattern worth reusing.
+  components were ported from and may already have a pattern worth reusing. Note that its framing
+  assumes desktop width — web-os renders into a portrait `max-w-md` viewport where the horizontal
+  FOV is only ~23°, so ported radii/scales usually need pulling in.
+- New shell UI goes in `web/src/components/shell/`. Reuse `AppPreviewFrame` for anything that shows
+  an app — it's the single component that knows how to embed one, at any size (`fit="scale"` for
+  thumbnails, `fit="native"` to fill a container). Keep the "exactly one live iframe at a time" rule
+  in `AppList`; nine concurrent embeds stutter badly on a phone.
+- Node.js here is under nvm — `source ~/.nvm/nvm.sh` before `npm`, or it's not on `PATH`.
 - `flutter_shell` stays Android/iOS-only until there's an actual reason to add desktop — see
   [[vault/Decisions/2026-08-06 - flutter_shell implementation]]. Extend `webos_webview`'s
   `NavigationDelegate` callbacks for native bridging rather than adding logic to `webos_app`.
